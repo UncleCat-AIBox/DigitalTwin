@@ -12,6 +12,8 @@ import Translator from './components/Translator';
 import About from './components/About';
 import TodoPanel from './components/TodoPanel';
 import SelectionPopover from './components/SelectionPopover';
+import ApiKeyModal from './components/ApiKeyModal';
+import { apiKeyManager } from './services/apiKeyManager';
 import { AppView, UserMemoryProfile, DecisionRecord, GalleryItem, PromptSession, ChatSessionRecord, LiveSessionRecord, TodoItem } from './types';
 
 // Initial empty profile
@@ -113,7 +115,10 @@ const App: React.FC = () => {
   const [profile, setProfile] = useState<UserMemoryProfile>(INITIAL_PROFILE);
   const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-  
+
+  // API Key State
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+
   // Creative Studio State
   const [points, setPoints] = useState(1000); 
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
@@ -132,6 +137,11 @@ const App: React.FC = () => {
 
   // Load from local storage on mount
   useEffect(() => {
+    // Check if API Key exists
+    if (!apiKeyManager.hasApiKey()) {
+      setShowApiKeyModal(true);
+    }
+
     // Load Profile
     const savedProfile = localStorage.getItem('mirror_ai_profile');
     if (savedProfile) {
@@ -187,6 +197,11 @@ const App: React.FC = () => {
     setProfile(updated);
     localStorage.setItem('mirror_ai_profile', JSON.stringify(updated));
     setTimeout(() => setIsUpdatingProfile(false), 2000);
+  };
+
+  const handleApiKeySubmit = (apiKey: string) => {
+    apiKeyManager.setApiKey(apiKey);
+    setShowApiKeyModal(false);
   };
 
   const handleAddDecision = (record: DecisionRecord) => {
@@ -389,7 +404,14 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-gray-50 relative">
-      <Sidebar currentView={currentView} setView={setCurrentView} />
+      {/* API Key Modal */}
+      <ApiKeyModal isOpen={showApiKeyModal} onSubmit={handleApiKeySubmit} />
+
+      <Sidebar
+        currentView={currentView}
+        setView={setCurrentView}
+        onOpenApiKeySettings={() => setShowApiKeyModal(true)}
+      />
       
       <main className="flex-1 ml-64 h-full relative">
         {renderView()}

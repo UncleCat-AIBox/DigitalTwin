@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { createPcmBlob, decodeAudioData } from '../services/gemini';
+import { apiKeyManager } from '../services/apiKeyManager';
 import { LiveSessionRecord } from '../types';
 
 interface LiveSessionProps {
@@ -68,7 +69,12 @@ const LiveSession: React.FC<LiveSessionProps> = ({ history, saveRecord }) => {
       currentTranscriptRef.current = [];
       startTimeRef.current = Date.now();
 
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const apiKey = apiKeyManager.getApiKey();
+      if (!apiKey) {
+        throw new Error('API Key 未设置');
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       
       const inputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       const outputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });

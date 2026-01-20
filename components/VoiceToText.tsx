@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { createPcmBlob, polishText, extractTasksFromText } from '../services/gemini';
+import { apiKeyManager } from '../services/apiKeyManager';
 
 interface VoiceToTextProps {
   onAddTodos: (tasks: string[]) => void;
@@ -56,7 +57,12 @@ const VoiceToText: React.FC<VoiceToTextProps> = ({ onAddTodos }) => {
       setStatus('正在初始化...');
       userTextRef.current = '';
 
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const apiKey = apiKeyManager.getApiKey();
+      if (!apiKey) {
+        throw new Error('API Key 未设置');
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const inputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       
       inputContextRef.current = inputCtx;

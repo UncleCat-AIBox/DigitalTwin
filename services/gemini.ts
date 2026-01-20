@@ -1,7 +1,14 @@
 import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
 import { UserMemoryProfile } from "../types";
+import { apiKeyManager } from "./apiKeyManager";
 
-const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAI = () => {
+  const apiKey = apiKeyManager.getApiKey();
+  if (!apiKey) {
+    throw new Error('API Key 未设置,请先配置 API Key');
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 // Models
 const MODEL_CHAT_PRO = 'gemini-3-pro-preview';
@@ -484,15 +491,20 @@ export const editImage = async (base64Image: string, prompt: string) => {
  * Generate Video (Veo)
  */
 export const generateVideo = async (prompt: string, base64Image: string | null, aspectRatio: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
+  const apiKey = apiKeyManager.getApiKey();
+  if (!apiKey) {
+    throw new Error('API Key 未设置');
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
   const payload: any = {
     model: MODEL_VIDEO_FAST,
     prompt: prompt,
     config: {
       numberOfVideos: 1,
       aspectRatio: aspectRatio as '16:9' | '9:16',
-      resolution: '720p' 
+      resolution: '720p'
     }
   };
 
@@ -518,7 +530,7 @@ export const generateVideo = async (prompt: string, base64Image: string | null, 
   const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
   if (!downloadLink) throw new Error("视频生成失败");
 
-  const res = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+  const res = await fetch(`${downloadLink}&key=${apiKey}`);
   const blob = await res.blob();
   return URL.createObjectURL(blob);
 };

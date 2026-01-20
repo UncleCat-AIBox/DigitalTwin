@@ -4,9 +4,10 @@ import { AppView } from '../types';
 interface SidebarProps {
   currentView: AppView;
   setView: (view: AppView) => void;
+  onOpenApiKeySettings: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onOpenApiKeySettings }) => {
   const items = [
     { id: AppView.DASHBOARD, label: '数字画像', icon: '🧠' },
     { id: AppView.DECISION_SIM, label: '决策模拟', icon: '⚖️' },
@@ -48,7 +49,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
 
       {/* Bottom Area: About & Footer */}
       <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-        <button 
+        <button
+          onClick={onOpenApiKeySettings}
+          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium mb-2 text-gray-500 hover:text-blue-600 hover:bg-white"
+        >
+          <span className="text-lg">🔑</span>
+          API Key 设置
+        </button>
+
+        <button
           onClick={() => setView(AppView.ABOUT)}
           className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium mb-3 ${
              currentView === AppView.ABOUT
@@ -59,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
           <span className="text-lg">ℹ️</span>
           关于软件
         </button>
-        
+
         <div className="text-xs text-gray-400 text-center">
           Powered by Gemini 3.0 Pro
         </div>
