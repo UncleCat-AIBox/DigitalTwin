@@ -1,0 +1,8 @@
+{
+  "name": "猫叔的数字孪生2.3",
+  "description": "猫叔的专属数字分身系统。集成提示词专家工作流与基于个人画像的自动化决策模拟系统。",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
